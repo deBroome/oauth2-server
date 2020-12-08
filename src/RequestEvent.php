@@ -42,7 +42,7 @@ class RequestEvent implements HasEventName
         $this->request = $request;
     }
 
-    public function eventName()
+    public function eventName(): string
     {
         return $this->eventName;
     }

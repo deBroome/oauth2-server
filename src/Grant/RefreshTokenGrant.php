@@ -18,6 +18,7 @@ use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\RequestEvent;
 use League\OAuth2\Server\ResponseTypes\ResponseTypeInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use League\Event\EventDispatcher;
 
 /**
  * Refresh token grant.
@@ -66,7 +67,7 @@ class RefreshTokenGrant extends AbstractGrant
         // Issue and persist new access token
         $accessToken = $this->issueAccessToken($accessTokenTTL, $client, $oldRefreshToken['user_id'], $scopes);
         //$this->getEmitter()->emit(new RequestEvent(RequestEvent::ACCESS_TOKEN_ISSUED, $request));
-        $dispatcher = new League\Event\EventDispatcher();
+        $dispatcher = new EventDispatcher();
         $dispatcher->dispatch(new RequestEvent(RequestEvent::ACCESS_TOKEN_ISSUED, $request));
         $responseType->setAccessToken($accessToken);
 
@@ -75,7 +76,7 @@ class RefreshTokenGrant extends AbstractGrant
 
         if ($refreshToken !== null) {
             //$this->getEmitter()->emit(new RequestEvent(RequestEvent::REFRESH_TOKEN_ISSUED, $request));
-            $dispatcher = new League\Event\EventDispatcher();
+            $dispatcher = new EventDispatcher();
             $dispatcher->dispatch(new RequestEvent(RequestEvent::REFRESH_TOKEN_ISSUED, $request));
             $responseType->setRefreshToken($refreshToken);
         }
@@ -108,7 +109,7 @@ class RefreshTokenGrant extends AbstractGrant
         $refreshTokenData = \json_decode($refreshToken, true);
         if ($refreshTokenData['client_id'] !== $clientId) {
             //$this->getEmitter()->emit(new RequestEvent(RequestEvent::REFRESH_TOKEN_CLIENT_FAILED, $request));
-            $dispatcher = new League\Event\EventDispatcher();
+            $dispatcher = new EventDispatcher();
             $dispatcher->dispatch(new RequestEvent(RequestEvent::REFRESH_TOKEN_CLIENT_FAILED, $request));
             throw OAuthServerException::invalidRefreshToken('Token is not linked to client');
         }

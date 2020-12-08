@@ -14,7 +14,6 @@ use DateInterval;
 use DateTimeImmutable;
 use Error;
 use Exception;
-use League\Event\EmitterAwareTrait;
 use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\CryptTrait;
 use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
@@ -35,13 +34,14 @@ use League\OAuth2\Server\RequestTypes\AuthorizationRequest;
 use LogicException;
 use Psr\Http\Message\ServerRequestInterface;
 use TypeError;
+use League\Event\EventDispatcher;
 
 /**
  * Abstract grant class.
  */
 abstract class AbstractGrant implements GrantTypeInterface
 {
-    use EmitterAwareTrait, CryptTrait;
+    use CryptTrait;
 
     const SCOPE_DELIMITER_STRING = ' ';
 
@@ -181,7 +181,7 @@ abstract class AbstractGrant implements GrantTypeInterface
 
         if ($this->clientRepository->validateClient($clientId, $clientSecret, $this->getIdentifier()) === false) {
             //$this->getEmitter()->emit(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
-            $dispatcher = new League\Event\EventDispatcher();
+            $dispatcher = new EventDispatcher();
             $dispatcher->dispatch(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
 
             throw OAuthServerException::invalidClient($request);
@@ -220,7 +220,7 @@ abstract class AbstractGrant implements GrantTypeInterface
 
         if ($client instanceof ClientEntityInterface === false) {
             //$this->getEmitter()->emit(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
-            $dispatcher = new League\Event\EventDispatcher();
+            $dispatcher = new EventDispatcher();
             $dispatcher->dispatch(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
 
             throw OAuthServerException::invalidClient($request);
@@ -271,7 +271,7 @@ abstract class AbstractGrant implements GrantTypeInterface
             && (\strcmp($client->getRedirectUri(), $redirectUri) !== 0)
         ) {
             //$this->getEmitter()->emit(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
-            $dispatcher = new League\Event\EventDispatcher();
+            $dispatcher = new EventDispatcher();
             $dispatcher->dispatch(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
 
             throw OAuthServerException::invalidClient($request);
@@ -279,7 +279,7 @@ abstract class AbstractGrant implements GrantTypeInterface
             && \in_array($redirectUri, $client->getRedirectUri(), true) === false
         ) {
             //$this->getEmitter()->emit(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
-            $dispatcher = new League\Event\EventDispatcher();
+            $dispatcher = new EventDispatcher();
             $dispatcher->dispatch(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
 
             throw OAuthServerException::invalidClient($request);

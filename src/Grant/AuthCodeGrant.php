@@ -27,6 +27,7 @@ use League\OAuth2\Server\ResponseTypes\ResponseTypeInterface;
 use LogicException;
 use Psr\Http\Message\ServerRequestInterface;
 use stdClass;
+use League\Event\EventDispatcher;
 
 class AuthCodeGrant extends AbstractAuthorizeGrant
 {
@@ -163,7 +164,7 @@ class AuthCodeGrant extends AbstractAuthorizeGrant
         // Issue and persist new access token
         $accessToken = $this->issueAccessToken($accessTokenTTL, $client, $authCodePayload->user_id, $scopes);
         //$this->getEmitter()->emit(new RequestEvent(RequestEvent::ACCESS_TOKEN_ISSUED, $request));
-        $dispatcher = new League\Event\EventDispatcher();
+        $dispatcher = new EventDispatcher();
         $dispatcher->dispatch(new RequestEvent(RequestEvent::ACCESS_TOKEN_ISSUED, $request));
         $responseType->setAccessToken($accessToken);
 
@@ -172,7 +173,7 @@ class AuthCodeGrant extends AbstractAuthorizeGrant
 
         if ($refreshToken !== null) {
             //$this->getEmitter()->emit(new RequestEvent(RequestEvent::REFRESH_TOKEN_ISSUED, $request));
-            $dispatcher = new League\Event\EventDispatcher();
+            $dispatcher = new EventDispatcher();
             $dispatcher->dispatch(new RequestEvent(RequestEvent::REFRESH_TOKEN_ISSUED, $request));
             $responseType->setRefreshToken($refreshToken);
         }
@@ -268,7 +269,7 @@ class AuthCodeGrant extends AbstractAuthorizeGrant
         } elseif (empty($client->getRedirectUri()) ||
             (\is_array($client->getRedirectUri()) && \count($client->getRedirectUri()) !== 1)) {
             //$this->getEmitter()->emit(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
-            $dispatcher = new League\Event\EventDispatcher();
+            $dispatcher = new EventDispatcher();
             $dispatcher->dispatch(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
             throw OAuthServerException::invalidClient($request);
         }

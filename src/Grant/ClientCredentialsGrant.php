@@ -16,6 +16,7 @@ use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\RequestEvent;
 use League\OAuth2\Server\ResponseTypes\ResponseTypeInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use League\Event\EventDispatcher;
 
 /**
  * Client credentials grant class.
@@ -36,7 +37,7 @@ class ClientCredentialsGrant extends AbstractGrant
 
         if (!$client->isConfidential()) {
             //$this->getEmitter()->emit(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
-            $dispatcher = new League\Event\EventDispatcher();
+            $dispatcher = new EventDispatcher();
             $dispatcher->dispatch(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
 
             throw OAuthServerException::invalidClient($request);
@@ -55,7 +56,7 @@ class ClientCredentialsGrant extends AbstractGrant
 
         // Send event to emitter
         //$this->getEmitter()->emit(new RequestEvent(RequestEvent::ACCESS_TOKEN_ISSUED, $request));
-        $dispatcher = new League\Event\EventDispatcher();
+        $dispatcher = new EventDispatcher();
         $dispatcher->dispatch(new RequestEvent(RequestEvent::ACCESS_TOKEN_ISSUED, $request));
 
         // Inject access token into response type
