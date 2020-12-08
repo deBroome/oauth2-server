@@ -35,7 +35,9 @@ class ClientCredentialsGrant extends AbstractGrant
         $client = $this->getClientEntityOrFail($clientId, $request);
 
         if (!$client->isConfidential()) {
-            $this->getEmitter()->emit(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
+            //$this->getEmitter()->emit(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
+            $dispatcher = new League\Event\EventDispatcher();
+            $dispatcher->dispatch(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
 
             throw OAuthServerException::invalidClient($request);
         }
@@ -52,7 +54,9 @@ class ClientCredentialsGrant extends AbstractGrant
         $accessToken = $this->issueAccessToken($accessTokenTTL, $client, null, $finalizedScopes);
 
         // Send event to emitter
-        $this->getEmitter()->emit(new RequestEvent(RequestEvent::ACCESS_TOKEN_ISSUED, $request));
+        //$this->getEmitter()->emit(new RequestEvent(RequestEvent::ACCESS_TOKEN_ISSUED, $request));
+        $dispatcher = new League\Event\EventDispatcher();
+        $dispatcher->dispatch(new RequestEvent(RequestEvent::ACCESS_TOKEN_ISSUED, $request));
 
         // Inject access token into response type
         $responseType->setAccessToken($accessToken);

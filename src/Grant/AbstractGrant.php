@@ -180,7 +180,9 @@ abstract class AbstractGrant implements GrantTypeInterface
         list($clientId, $clientSecret) = $this->getClientCredentials($request);
 
         if ($this->clientRepository->validateClient($clientId, $clientSecret, $this->getIdentifier()) === false) {
-            $this->getEmitter()->emit(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
+            //$this->getEmitter()->emit(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
+            $dispatcher = new League\Event\EventDispatcher();
+            $dispatcher->dispatch(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
 
             throw OAuthServerException::invalidClient($request);
         }
@@ -217,7 +219,10 @@ abstract class AbstractGrant implements GrantTypeInterface
         $client = $this->clientRepository->getClientEntity($clientId);
 
         if ($client instanceof ClientEntityInterface === false) {
-            $this->getEmitter()->emit(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
+            //$this->getEmitter()->emit(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
+            $dispatcher = new League\Event\EventDispatcher();
+            $dispatcher->dispatch(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
+
             throw OAuthServerException::invalidClient($request);
         }
 
@@ -265,12 +270,18 @@ abstract class AbstractGrant implements GrantTypeInterface
         if (\is_string($client->getRedirectUri())
             && (\strcmp($client->getRedirectUri(), $redirectUri) !== 0)
         ) {
-            $this->getEmitter()->emit(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
+            //$this->getEmitter()->emit(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
+            $dispatcher = new League\Event\EventDispatcher();
+            $dispatcher->dispatch(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
+
             throw OAuthServerException::invalidClient($request);
         } elseif (\is_array($client->getRedirectUri())
             && \in_array($redirectUri, $client->getRedirectUri(), true) === false
         ) {
-            $this->getEmitter()->emit(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
+            //$this->getEmitter()->emit(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
+            $dispatcher = new League\Event\EventDispatcher();
+            $dispatcher->dispatch(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
+
             throw OAuthServerException::invalidClient($request);
         }
     }
