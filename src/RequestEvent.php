@@ -9,10 +9,10 @@
 
 namespace League\OAuth2\Server;
 
-use League\Event\Event;
+use League\Event\HasEventName;
 use Psr\Http\Message\ServerRequestInterface;
 
-class RequestEvent extends Event
+class RequestEvent implements HasEventName
 {
     const CLIENT_AUTHENTICATION_FAILED = 'client.authentication.failed';
     const USER_AUTHENTICATION_FAILED = 'user.authentication.failed';
@@ -25,6 +25,10 @@ class RequestEvent extends Event
      * @var ServerRequestInterface
      */
     private $request;
+    /**
+     * @var string
+     */
+    private $eventName;
 
     /**
      * RequestEvent constructor.
@@ -34,8 +38,16 @@ class RequestEvent extends Event
      */
     public function __construct($name, ServerRequestInterface $request)
     {
-        parent::__construct($name);
+        $this->eventName = $name;
         $this->request = $request;
+    }
+
+    /**
+     * @return string
+     */
+    public function eventName(): string
+    {
+        return $this->eventName;
     }
 
     /**

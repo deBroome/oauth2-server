@@ -19,6 +19,7 @@ use League\OAuth2\Server\ResponseTypes\RedirectResponse;
 use League\OAuth2\Server\ResponseTypes\ResponseTypeInterface;
 use LogicException;
 use Psr\Http\Message\ServerRequestInterface;
+use League\Event\EventDispatcher;
 
 class ImplicitGrant extends AbstractAuthorizeGrant
 {
@@ -132,7 +133,10 @@ class ImplicitGrant extends AbstractAuthorizeGrant
             $this->validateRedirectUri($redirectUri, $client, $request);
         } elseif (\is_array($client->getRedirectUri()) && \count($client->getRedirectUri()) !== 1
             || empty($client->getRedirectUri())) {
-            $this->getEmitter()->emit(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
+            //$this->getEmitter()->emit(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
+            $dispatcher = new EventDispatcher();
+            $dispatcher->dispatch(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
+
             throw OAuthServerException::invalidClient($request);
         } else {
             $redirectUri = \is_array($client->getRedirectUri())
