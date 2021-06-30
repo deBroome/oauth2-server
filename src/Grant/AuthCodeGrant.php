@@ -20,7 +20,9 @@ use League\OAuth2\Server\Entities\UserEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\AuthCodeRepositoryInterface;
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
+use League\OAuth2\Server\RequestAccessTokenEvent;
 use League\OAuth2\Server\RequestEvent;
+use League\OAuth2\Server\RequestRefreshTokenEvent;
 use League\OAuth2\Server\RequestTypes\AuthorizationRequest;
 use League\OAuth2\Server\ResponseTypes\RedirectResponse;
 use League\OAuth2\Server\ResponseTypes\ResponseTypeInterface;
@@ -107,7 +109,7 @@ class AuthCodeGrant extends AbstractAuthorizeGrant
 
         $encryptedAuthCode = $this->getRequestParameter('code', $request, null);
 
-        if ($encryptedAuthCode === null) {
+        if (!\is_string($encryptedAuthCode)) {
             throw OAuthServerException::invalidRequest('code');
         }
 
@@ -265,8 +267,13 @@ class AuthCodeGrant extends AbstractAuthorizeGrant
         $redirectUri = $this->getQueryStringParameter('redirect_uri', $request);
 
         if ($redirectUri !== null) {
+            if (!\is_string($redirectUri)) {
+                throw OAuthServerException::invalidRequest('redirect_uri');
+            }
+
             $this->validateRedirectUri($redirectUri, $client, $request);
-        } elseif (\is_array($client->getRedirectUri()) && \count($client->getRedirectUri()) !== 1) {
+        } elseif (empty($client->getRedirectUri()) ||
+            (\is_array($client->getRedirectUri()) && \count($client->getRedirectUri()) !== 1))  {
             //$this->getEmitter()->emit(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
             $dispatcher = new EventDispatcher();
             $dispatcher->dispatch(new RequestEvent(RequestEvent::CLIENT_AUTHENTICATION_FAILED, $request));
