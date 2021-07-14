@@ -17,4 +17,9 @@ interface UserEntityInterface
      * @return mixed
      */
     public function getIdentifier();
+
+    /**
+     * Set the user's identifier.
+     */
+    public function setIdentifier($identifier);
 }
